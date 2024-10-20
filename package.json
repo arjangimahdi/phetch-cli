@@ -1,5 +1,5 @@
 {
-  "name": "directory-manager",
+  "name": "@arjangimahdi/phetch-cli",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,11 @@
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["cli", "npmtool"],
+  "author": "Mahdi Arjangi",
   "license": "ISC",
+  "repository": "https://github.com/arjangimahdi/phetch-cli",
+  "homepage": "https://github.com/arjangimahdi/phetch-cli#readme",
   "dependencies": {
     "commander": "^12.1.0",
     "figlet": "^1.8.0"
