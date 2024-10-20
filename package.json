@@ -1,9 +1,8 @@
 {
-  "name": "@arjangimahdi/phetch-cli",
+  "name": "@mahdiarjangi/phetch-cli",
   "private": false,
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "build": "npx tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -26,3 +25,4 @@
     "typescript": "^5.6.3"
   }
 }
+
