@@ -8,13 +8,21 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: node
+        
+      - name: setup node
         uses: actions/setup-node@v2
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org
+
+      - name: bump version
+        run: |
+          git config user.name "Mahdi Arjangi"
+          git config user.email "github.mahdiarjangi.official@gmail.com"
+          npm version patch -m "CI: Bump version to %s"
+          git push origin HEAD
+
       - name: publish
-        run: npm version patch && npm publish --access public
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPMTOKEN}}
-
