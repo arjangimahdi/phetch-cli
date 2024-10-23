@@ -11,18 +11,23 @@
   "bin": {
     "phetch-cli": "./dist/index.js"
   },
-  "keywords": ["cli", "npmtool"],
+  "keywords": [
+    "cli",
+    "npmtool"
+  ],
   "author": "Mahdi Arjangi",
   "license": "ISC",
   "repository": "https://github.com/arjangimahdi/phetch-cli",
   "homepage": "https://github.com/arjangimahdi/phetch-cli#readme",
   "dependencies": {
+    "chalk": "^4.1.2",
     "commander": "^12.1.0",
     "figlet": "^1.8.0"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.4",
     "@types/node": "^22.7.7",
+    "ofetch": "^1.4.1",
     "typescript": "^5.6.3"
   }
 }
-
