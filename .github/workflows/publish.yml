@@ -8,23 +8,27 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-        
+        with:
+          persist-credentials: false  # Do not persist the default credentials
+
       - name: setup node
         uses: actions/setup-node@v2
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org
 
+      - name: Configure Git for pushing
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.ACTION_TOKEN }}@github.com/phetch-cli.git
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: bump version
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           npm version patch -m "CI: Bump version to %s"
-          git push origin HEAD
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}  # Use GITHUB_TOKEN for authorization
+          git push origin HEAD  # Push changes using the manually configured Git
 
       - name: publish
         run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPMTOKEN }}  # npm token to publish package
+          NODE_AUTH_TOKEN: ${{ secrets.NPMTOKEN }}
