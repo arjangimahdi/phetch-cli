@@ -19,7 +19,7 @@ jobs:
 
       - name: Configure Git for pushing
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.ACTION_TOKEN }}@github.com/phetch-cli.git
+          git remote set-url origin https://x-access-token:${{ secrets.ACTION_TOKEN }}@github.com/arjangimahdi/phetch-cli.git
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
