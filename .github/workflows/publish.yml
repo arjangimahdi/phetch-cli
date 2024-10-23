@@ -17,8 +17,8 @@ jobs:
 
       - name: bump version
         run: |
-          git config user.name "Mahdi Arjangi"
-          git config user.email "github.mahdiarjangi.official@gmail.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           npm version patch -m "CI: Bump version to %s"
           git push origin HEAD
 
