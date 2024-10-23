@@ -21,8 +21,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           npm version patch -m "CI: Bump version to %s"
           git push origin HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}  # Use GITHUB_TOKEN for authorization
 
       - name: publish
         run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPMTOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPMTOKEN }}  # npm token to publish package
