@@ -1,7 +1,7 @@
 {
   "name": "@mahdiarjangi/phetch-cli",
   "private": false,
-  "version": "1.0.4560",
+  "version": "1.0.4561",
   "description": "",
   "scripts": {
     "build": "npx tsc",
