@@ -13,11 +13,36 @@ const program = new Command();
 
 console.log(figlet.textSync("PHETCH-CLI"));
 
+const pluginPattern = {
+    name: 'api',
+    extension: 'ts',
+    type: 'plugin',
+    content: `
+import { $fetch, type FetchOptions } from 'ofetch'
+
+interface IApiInstance { [items] }
+
+export default defineNuxtPlugin((nuxtApp) => {
+    const config = useRuntimeConfig()
+    const fetchOptions: FetchOptions = {
+        baseURL: 'BASE URL',
+    }
+    const apiFetcher = $fetch.create(fetchOptions)
+    const modules: IApiInstance = { [items] }
+
+    return {
+        provide: {
+            api: modules
+        }
+    }
+})
+`
+}
 const patterns = [
     {
         name: 'Transform',
         extension: 'ts',
-        type: 't',
+        type: 'transform',
         content: `
         export function [name]Transform(data: [input]) {
             // transformed data
@@ -27,7 +52,7 @@ const patterns = [
     {
         name: 'Interface',
         extension: 'ts',
-        type: 'i',
+        type: 'interface',
         content: `
         export interface [name]Interface {
             // interface props
@@ -37,26 +62,9 @@ const patterns = [
     {
         name: 'Api',
         extension: 'ts',
-        type: 'a',
+        type: 'api',
         content: `
-        import { $fetch, type FetchOptions } from 'ofetch'
         
-        interface IApiInstance { }
-        
-        export default defineNuxtPlugin((nuxtApp) => {
-            const config = useRuntimeConfig()
-            const fetchOptions: FetchOptions = {
-                baseURL: 'BASE URL',
-            }
-            const apiFetcher = $fetch.create(fetchOptions)
-            const modules: IApiInstance = { }
-        
-            return {
-                provide: {
-                    api: modules
-                }
-            }
-        })
         `
     }
 ]
@@ -93,6 +101,9 @@ program
             console.log(chalk.green(`stdout: ${stdout}`));
             console.log(chalk.blue.bold('ofetch installed successfully!'));
         });
+
+        createPlugin('./plugins', pluginPattern)
+        // createFactory('')
     })
 
 program
@@ -116,16 +127,6 @@ program
 
 program.parse(process.argv)
 
-// if (options.api) {
-//     const names = ['Transform.ts', 'Api.ts', 'Factory.ts']
-//     createDir(path.resolve(__dirname, options.api));
-//     for (const name of names) {
-//         const fullPath = path.resolve(path.join(__dirname, `/${options.api}`), options.api + name)
-//         createFile(fullPath)
-//         writeFile(fullPath)
-//     }
-// }
-
 async function listDirContents(filePath: string) {
     try {
         const files = await fs.promises.readdir(filePath);
@@ -145,21 +146,63 @@ async function listDirContents(filePath: string) {
         console.error(chalk.red("Error occurred while reading the directory!", error));
     }
 }
-function writeFile(filePath: string) {
-    fs.writeFile(filePath, 'console.log("Hello World!");', function(err: string) {
+function writeFile(filePath: string, content: string, parameter?: string) {
+    const c = content.replace('[p]', parameter as string)
+    fs.writeFile(filePath, c, function(err: string) {
         if (err) {
             return console.error(chalk.red(err));
         }
         console.log("File created!");
     })
 }
-function createDir(filePath: string) {
-    if (!fs.existsSync(filePath)) {
-        fs.mkdirSync(filePath);
+function createDir(dir: string) {
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
         console.log("The directory has been created successfully");
     }
 }
 function createFile(filePath: string) {
+    const dir = path.dirname(filePath); 
+
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
     fs.openSync(filePath, "w");
-    console.log("An empty file has been created");
+    console.log("An empty file has been created at:", filePath);
+}
+function createFactory(filePath: string) {
+/*
+import type { $Fetch, FetchOptions } from 'ofetch'
+
+class FetchFactory<T> {
+  private $fetch: $Fetch
+
+  constructor($fetcher: $Fetch) {
+    this.$fetch = $fetcher
+  }
+
+  async call(
+    method: string,
+    url: string,
+    data?: object,
+    fetchOptions?: FetchOptions<'json'>
+  ): Promise<T> {
+    return this.$fetch<T>(url, {
+      method,
+      body: data,
+      ...fetchOptions
+    })
+  }
+}
+
+export default FetchFactory
+*/
+}
+function createPlugin(p: string, pattern: any) {
+    createDir(p)
+    const fullPath = path.resolve(path.join(__dirname, `/${p}`), pattern.name + '.' + pattern.extension)
+    console.log(fullPath);
+    createFile(fullPath)
+    writeFile(fullPath, pattern.content)
 }
