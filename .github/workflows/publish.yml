@@ -28,16 +28,6 @@ jobs:
           git config --global user.name "arjangimahdi"
           git config --global user.email "github.mahdiarjangi.official@gmail.com"
 
-      - name: Check for GitHub Actions Bot Commit
-        id: check_bot
-        run: |
-          LAST_COMMITTER=$(git log -1 --pretty=format:'%an')
-          if [[ "$LAST_COMMITTER" == "github-actions[bot]" ]]; then
-            echo "::set-output name=skip_publish::true"
-          else
-            echo "::set-output name=skip_publish::false"
-          fi
-
       - name: bump version
         if: steps.check_bot.outputs.skip_publish == 'false'
         run: |
