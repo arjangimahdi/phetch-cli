@@ -20,7 +20,9 @@ const pluginPattern = {
     content: `
 import { $fetch, type FetchOptions } from 'ofetch'
 
-interface IApiInstance { [items] }
+interface IApiInstance {
+
+}
 
 export default defineNuxtPlugin((nuxtApp) => {
     const config = useRuntimeConfig()
@@ -28,7 +30,9 @@ export default defineNuxtPlugin((nuxtApp) => {
         baseURL: 'BASE URL',
     }
     const apiFetcher = $fetch.create(fetchOptions)
-    const modules: IApiInstance = { [items] }
+    const modules: IApiInstance = {
+    
+    }
 
     return {
         provide: {
@@ -38,6 +42,38 @@ export default defineNuxtPlugin((nuxtApp) => {
 })
 `
 }
+const factoryPattern = {
+    name: 'factory',
+    extension: 'ts',
+    type: 'factory',
+    content: `
+import type { $Fetch, FetchOptions } from 'ofetch'
+
+class FetchFactory<T> {
+  private $fetch: $Fetch
+
+  constructor($fetcher: $Fetch) {
+    this.$fetch = $fetcher
+  }
+
+  async call(
+    method: string,
+    url: string,
+    data?: object,
+    fetchOptions?: FetchOptions<'json'>
+  ): Promise<T> {
+    return this.$fetch<T>(url, {
+      method,
+      body: data,
+      ...fetchOptions
+    })
+  }
+}
+
+export default FetchFactory
+`
+}
+
 const patterns = [
     {
         name: 'Transform',
@@ -88,7 +124,7 @@ program
     .description('create initial functionalities')
     .action(() => {
         console.log(`Installing ofetch`);
-        
+
         exec(`npm install ofetch --save-dev`, (error: ExecException | null, stdout: string, stderr: string) => {
             if (error) {
                 console.error(chalk.red(`Error during installation: ${error.message}`));
@@ -100,10 +136,10 @@ program
             }
             console.log(chalk.green(`stdout: ${stdout}`));
             console.log(chalk.blue.bold('ofetch installed successfully!'));
+            createPlugin('./plugins', pluginPattern)
+            createFactory('./src', factoryPattern)
         });
 
-        createPlugin('./plugins', pluginPattern)
-        // createFactory('')
     })
 
 program
@@ -121,7 +157,11 @@ program
             // empty
         }
         if (options.default) {
-            // default
+            const fullPath = path.resolve(path.join(__dirname, `/./plugins`), pluginPattern.name + '.' + pluginPattern.extension)
+            console.log(fullPath);
+            
+            insertTextBetweenString(fullPath, 'interface IApiInstance {', `\n${name}`)
+            console.log(chalk.redBright.bold('plugin added!'));
         }
     })
 
@@ -171,38 +211,39 @@ function createFile(filePath: string) {
     fs.openSync(filePath, "w");
     console.log("An empty file has been created at:", filePath);
 }
-function createFactory(filePath: string) {
-/*
-import type { $Fetch, FetchOptions } from 'ofetch'
-
-class FetchFactory<T> {
-  private $fetch: $Fetch
-
-  constructor($fetcher: $Fetch) {
-    this.$fetch = $fetcher
-  }
-
-  async call(
-    method: string,
-    url: string,
-    data?: object,
-    fetchOptions?: FetchOptions<'json'>
-  ): Promise<T> {
-    return this.$fetch<T>(url, {
-      method,
-      body: data,
-      ...fetchOptions
-    })
-  }
-}
-
-export default FetchFactory
-*/
+function createFactory(p: string, pattern: any) {
+    createDir(p)
+    const fullPath = path.resolve(path.join(__dirname, `/${p}`), pattern.name + '.' + pattern.extension)
+    createFile(fullPath)
+    writeFile(fullPath, pattern.content)
 }
 function createPlugin(p: string, pattern: any) {
     createDir(p)
     const fullPath = path.resolve(path.join(__dirname, `/${p}`), pattern.name + '.' + pattern.extension)
-    console.log(fullPath);
     createFile(fullPath)
     writeFile(fullPath, pattern.content)
+}
+
+function insertTextBetweenString(filePath: string, searchString: string, insertText: string): string {
+    try {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+
+        const startIndex = fileContent.indexOf(searchString);
+        const endIndex = startIndex + searchString.length;
+
+        if (startIndex === -1) {
+            return `The string "${searchString}" was not found in the file.`;
+        }
+
+        const updatedContent = 
+            fileContent.slice(0, startIndex + searchString.length) +
+            insertText +
+            fileContent.slice(endIndex);        
+
+        fs.writeFileSync(filePath, updatedContent, 'utf-8');
+
+        return `The text "${insertText}" was successfully inserted after "${searchString}" in the file.`;
+    } catch (error) {
+        return `An error occurred while processing the file: ${error}`;
+    }
 }
