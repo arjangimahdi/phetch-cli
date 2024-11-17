@@ -108,7 +108,31 @@ const patterns = [
         extension: 'ts',
         type: 'api',
         content: `
-        
+        export class [name]Module extends FetchFactory<[name]Interface[]> {
+            private RESOURCE: string = '/[lower-name]s'
+
+            async get[name]s(
+                asyncDataOptions?: AsyncDataOptions<[name]Interface[]>
+            ) {
+                return useAsyncData(
+                () => {
+                    const fetchOptions: FetchOptions<'json'> = {
+                    headers: {
+                        'Accept-Language': 'en-US'
+                    },
+                    }
+
+                    return this.call(
+                    'GET',
+                    this.RESOURCE,
+                    undefined,
+                    fetchOptions
+                    )
+                },
+                asyncDataOptions
+                )
+            }
+        }
         `
     }
 ];
@@ -161,8 +185,12 @@ program
     }
     if (options.default) {
         const fullPath = path.resolve(path.join(__dirname, `/./plugins`), pluginPattern.name + '.' + pluginPattern.extension);
-        console.log(fullPath);
-        insertTextBetweenString(fullPath, 'interface IApiInstance {', `\n ${name}`);
+        const importContent = `import ${capitalize(name)}Module from '~/repository/modules/${name}' \n`;
+        const fetcherContent = `\n \t\t${name}: new ${capitalize(name)}Module(apiFetcher)`;
+        const interfaceContent = `\n \t${name}: ${capitalize(name)}Module`;
+        insertTextBeforeString(fullPath, 'interface IApiInstance {', importContent);
+        insertTextBetweenString(fullPath, 'interface IApiInstance {', interfaceContent);
+        insertTextBetweenString(fullPath, 'const modules: IApiInstance = {', fetcherContent);
         console.log(chalk_1.default.redBright.bold('plugin added!'));
     }
 });
@@ -187,6 +215,9 @@ function listDirContents(filePath) {
             console.error(chalk_1.default.red("Error occurred while reading the directory!", error));
         }
     });
+}
+function capitalize(s) {
+    return String(s[0]).toUpperCase() + String(s).slice(1);
 }
 function writeFile(filePath, content, parameter) {
     const c = content.replace('[p]', parameter);
@@ -222,6 +253,24 @@ function createPlugin(p, pattern) {
     const fullPath = path.resolve(path.join(__dirname, `/${p}`), pattern.name + '.' + pattern.extension);
     createFile(fullPath);
     writeFile(fullPath, pattern.content);
+}
+function insertTextBeforeString(filePath, searchString, insertText) {
+    try {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const startIndex = fileContent.indexOf(searchString);
+        if (startIndex === -1) {
+            return `The string "${searchString}" was not found in the file.`;
+        }
+        // Insert the new text before the search string
+        const updatedContent = fileContent.slice(0, startIndex) +
+            insertText +
+            fileContent.slice(startIndex);
+        fs.writeFileSync(filePath, updatedContent, 'utf-8');
+        return `The text "${insertText}" was successfully inserted before "${searchString}" in the file.`;
+    }
+    catch (error) {
+        return `An error occurred while processing the file: ${error}`;
+    }
 }
 function insertTextBetweenString(filePath, searchString, insertText) {
     try {
