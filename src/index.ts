@@ -115,10 +115,10 @@ const patterns = [
                     }
 
                     return this.call(
-                    'GET',
-                    this.RESOURCE,
-                    undefined,
-                    fetchOptions
+                        'GET',
+                        this.RESOURCE,
+                        undefined,
+                        fetchOptions
                     )
                 },
                 asyncDataOptions
